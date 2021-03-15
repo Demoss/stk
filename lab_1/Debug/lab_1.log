@@ -1,0 +1,4 @@
+﻿  lab_1.cpp
+C:\Users\intet\source\repos\lab_1\lab_1.cpp(274,18): warning C4834: discarding return value of function with 'nodiscard' attribute
+C:\Users\intet\source\repos\lab_1\lab_1.cpp(277,18): warning C4834: discarding return value of function with 'nodiscard' attribute
+  lab_1.vcxproj -> C:\Users\intet\source\repos\lab_1\Debug\lab_1.exe
