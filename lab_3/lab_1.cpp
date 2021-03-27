@@ -312,7 +312,6 @@ int main()
 		cout << "CryptDecrypt" << endl;
 		return 1;
 	}
-	std::cout << "Розшифрований файл: " << e << std::endl;
 	ofstream fout;
 	fout.open("list.txt", ofstream::out);
 	fout << e;
@@ -464,12 +463,12 @@ int main()
 		case 7:
 			cout<<"Enter pass phrase"
 			cin >> SecPhrase;
+			std::cout << "Розшифрований файл: " << e << std::endl;
 			if (!CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_FULL, 0))
 			{
 				cout << "!CryptAcquireContext" << endl;
 				return 1;
 			}
-			
 			if (!CryptGenKey(hProv, CALG_RC4,
 				CRYPT_ENCRYPT | CRYPT_DECRYPT, &Key))
 			{
