@@ -286,21 +286,48 @@ int main()
 	HCRYPTKEY hSessionKey;
 	DWORD counts;
 	HCRYPTKEY Key;
-	HCRYPTKEY* phKey = &Key;
-	const char* c = SecPhrase.c_str();
-	DWORD count = strlen(c);
-	char* hash_value = static_cast<char*>(malloc(count + 1));
-	ZeroMemory(hash_value, count + 1);
-	ifstream fin;
-	ofstream fout;
 	string tmp;
 	string res = "";
-	ifstream fin1;
-	const char* e;
-	const char* k;
-	DWORD ct; 
-	DWORD countss;
-	string en="";
+	HCRYPTKEY* phKey = &Key;
+	const char* e = res.c_str();
+	DWORD ct = strlen(e);
+	const char* c = SecPhrase.c_str();
+	DWORD count = strlen(c);
+
+	char* hash_value = static_cast<char*>(malloc(count + 1));
+	ZeroMemory(hash_value, count + 1);
+	if (!CryptAcquireContext(&hProv,NULL, MS_DEF_RSA_SCHANNEL_PROV, PROV_RSA_FULL, 0))
+	{
+		cout << "!CryptAcquireContext" << endl;
+		return 1;
+	}
+	if (!CryptGenKey(hProv, CALG_RC4,
+		CRYPT_ENCRYPT | CRYPT_DECRYPT, phKey))
+	{
+		cout << "!CryptGenKey" << endl;
+		return 1;
+	}
+	if (!CryptDecrypt(Key, 0, true, 0, (BYTE*)e, &ct))
+	{
+		cout << "CryptDecrypt" << endl;
+		return 1;
+	}
+	std::cout << "Розшифрований файл: " << e << std::endl;
+	ofstream fout;
+	fout.open("list.txt", ofstream::out);
+	fout << e;
+	fout.close();
+	CryptDestroyKey(Key);
+	if (!CryptDeriveKey(hProv, CALG_RC4, hHash, CRYPT_NO_SALT, &Key)) {
+		cout << "!CryptDeriveKey" << endl;
+		return 1;
+	}
+	
+	
+	
+	
+	
+	
 	cout << "press 1 to log in as admin" << endl;
 	cout << "press 2 to log in as user" << endl;
 	cout << "press 3 to get info" << endl;
@@ -435,108 +462,38 @@ int main()
 			exit(1);
 		}
 		case 7:
-			cout << "Enter pass phrase" << endl;
-
+			cout<<"Enter pass phrase"
 			cin >> SecPhrase;
-			c = SecPhrase.c_str();
 			if (!CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_FULL, 0))
 			{
 				cout << "!CryptAcquireContext" << endl;
 				return 1;
 			}
-			if (!CryptCreateHash(hProv, CALG_MD5, 0, 0, &hHash))
+			
+			if (!CryptGenKey(hProv, CALG_RC4,
+				CRYPT_ENCRYPT | CRYPT_DECRYPT, &Key))
 			{
-				cout << "!CryptCreateHash" << endl;;
+				cout << "!CryptGenKey" << endl;
 				return 1;
 			}
-
-			if (!CryptHashData(hHash, (BYTE*)c, count, 0))
-			{
-				cout << "!CryptHashData" << endl;
-				return 1;
-			}
-			if (!CryptDeriveKey(hProv, CALG_RC4, hHash, CRYPT_NO_SALT, &Key)) {
-				cout << "!CryptDeriveKey" << endl;
-				return 1;
-			}
-
-			fin.open(PATH);
-			if (!fin.eof())
-			{
-				while (getline(fin, ex))
-				{
-					text += ex;
-				}
-			}
-			fin.close();
+			
 			b = text.c_str();
 			counts = strlen(b);
+			cout << Key << endl;
 			if (!CryptEncrypt(Key, 0, true, 0, (BYTE*)b,
 				&counts, strlen(b)))
 			{
 				cout << "!CryptEncrypt" << endl;
 				return 1;
 			}
+			cout << b<<endl;
+			ofstream fout;
 			fout.open("list.txt", ofstream::out);
 			fout << b;
 			fout.close();
-			
-			fin1.open("list.txt");
-			
-			if (!fin1.eof())
-			{
-				while (getline(fin1, tmp))
-				{
-					res += tmp;
-				}
-			}
-			fin1.close();
-			e = res.c_str();
-			ct = strlen(e);
-			if (!CryptDecrypt(Key, 0, true, 0, (BYTE*)e, &ct))
-			{
-				cout << "CryptDecrypt" << endl;
-				return 1;
-			}
-			std::cout << "Розшифрований файл: " << e << std::endl;
-
-			CryptDestroyKey(Key);
-			
-			cout << "Enter user name: ";
-			cin >> login;
-			NewUser.push_back(login);
-			NewUser.push_back("");
-			cout << "If user is blocked press 1, other 0" << endl;
-			cin >> isBlocked;
-			NewUser.push_back(isBlocked);
-			cout << "If user password is limited press 1, other 0" << endl;
-			cin >> isLimited;
-			NewUser.push_back(isLimited);
-			users.push_back(NewUser);
-			WriteFile(users);
-			cout << "User has been added" << endl;
-
 			cout << "File is enctypted" << endl;
-			fin.open(PATH);
-			if (!fin.eof())
-			{
-				while (getline(fin, ex))
-				{
-					text += ex;
-				}
-			}
-			fin.close();
 			
-			/*if (!CryptEncrypt(Key, 0, true, 0, (BYTE*)b,
-				&counts, strlen(b)))
-			{
-				cout << "!CryptEncrypt" << endl;
-				return 1;
-			}
-			fout.open("list.txt", ofstream::out);
-			fout << b;
-			fout.close();*/
-			exit(1);
+			
 	case 2:
 		cout << "Enter your login" << endl;
 
